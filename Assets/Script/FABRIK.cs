@@ -16,6 +16,9 @@ public class FABRIK: MonoBehaviour
     private int countIterations;
     private int numberOfJoints;
     private Vector3 initialPosition;
+    private float distanceArm;
+    private float distanceTarget;
+    public float smoothFactor;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +26,8 @@ public class FABRIK: MonoBehaviour
         numberOfJoints = Joints.Count;
         getLinks();
         initialPosition = Joints[0].position;
+
+        distanceArm = Vector3.Distance(initialPosition, Joints[numberOfJoints - 1].position);
 
         foreach (Transform joint in Joints)
         {
@@ -35,8 +40,10 @@ public class FABRIK: MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (countIterations < maxIterations && Vector3.Distance(Joints[numberOfJoints - 1].position, target.position) > tolerance)
+        distanceTarget = Vector3.Distance(initialPosition, target.position);
 
+        if (countIterations < maxIterations && Vector3.Distance(Joints[numberOfJoints - 1].position, target.position) > tolerance && 
+            distanceTarget <= distanceArm)
         {
             Forward();
             Backward();
@@ -58,33 +65,40 @@ public class FABRIK: MonoBehaviour
 
     void Forward()
     {
-        Joints[numberOfJoints - 1].position = target.position;
+        Joints[numberOfJoints - 1].position = Vector3.Lerp(
+            Joints[numberOfJoints - 1].position,
+            target.position,
+            smoothFactor);
 
-        for (int i = numberOfJoints - 2; i >= 0; i--) 
+        for (int i = numberOfJoints - 2; i >= 0; i--)
         {
-
             float distance = Vector3.Magnitude(Links[i]);
             float denominator = Vector3.Distance(Joints[i].position, Joints[i + 1].position);
             lambda = distance / denominator;
-            Vector3 temp = lambda * Joints[i].position + (1 - lambda) * Joints[i + 1].position;
-            Joints[i].position = temp;
+            Vector3 targetPosition = lambda * Joints[i].position + (1 - lambda) * Joints[i + 1].position;
 
+            // Interpolación suave
+            Joints[i].position = Vector3.Lerp(Joints[i].position, targetPosition, smoothFactor);
         }
     }
 
     void Backward()
     {
-        Joints[0].position = initialPosition;
+        Joints[0].position = Vector3.Lerp(
+            Joints[0].position,
+            initialPosition,
+            smoothFactor);
 
-        for (int i = 1; i < numberOfJoints; i++) 
+        for (int i = 1; i < numberOfJoints; i++)
         {
             float distance = Vector3.Magnitude(Links[i - 1]);
             float denominator = Vector3.Distance(Joints[i - 1].position, Joints[i].position);
             lambda = distance / denominator;
-            Vector3 temp = lambda * Joints[i].position + (1 - lambda) * Joints[i - 1].position;
-            Joints[i].position = temp;
+            Vector3 targetPosition = lambda * Joints[i].position + (1 - lambda) * Joints[i - 1].position;
+
+            // Interpolación suave
+            Joints[i].position = Vector3.Lerp(Joints[i].position, targetPosition, smoothFactor);
         }
-    
     }
 
     void InitializeLineRenderer(LineRenderer lineRenderer)
