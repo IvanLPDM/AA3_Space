@@ -9,6 +9,7 @@ public class FABRIK: MonoBehaviour
     public List<LineRenderer> LineRenderers = new List<LineRenderer>();
     public Material lineMaterial;
     public Transform target;
+    public Transform target_2;
     public float tolerance = 1.0f;
     public float maxIterations = 1e5f;
     private float lambda;
@@ -19,6 +20,9 @@ public class FABRIK: MonoBehaviour
     private float distanceArm;
     private float distanceTarget;
     public float smoothFactor;
+
+    public TrayectoriaDrone droneScript;
+
 
     // Start is called before the first frame update
     void Start()
@@ -42,13 +46,16 @@ public class FABRIK: MonoBehaviour
     {
         distanceTarget = Vector3.Distance(initialPosition, target.position);
 
-        if (countIterations < maxIterations && Vector3.Distance(Joints[numberOfJoints - 1].position, target.position) > tolerance && 
-            distanceTarget <= distanceArm)
+        if (countIterations < maxIterations && Vector3.Distance(Joints[numberOfJoints - 1].position, target.position) > tolerance)
         {
             Forward();
             Backward();
 
             countIterations++;
+        }
+        else
+        {
+            catchDrone();
         }
 
         UpdateVisualLinks();
@@ -118,6 +125,15 @@ public class FABRIK: MonoBehaviour
             LineRenderers[i].SetPosition(0, Joints[i].position);
             LineRenderers[i].SetPosition(1, Joints[i + 1].position);
         }
+    }
+
+    void catchDrone()
+    {
+        target.SetParent(Joints[numberOfJoints - 1]);
+
+        droneScript.StopMovement();
+
+        target = target_2;
     }
 
 }
