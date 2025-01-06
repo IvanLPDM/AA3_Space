@@ -10,6 +10,7 @@ public class FABRIK: MonoBehaviour
     public Material lineMaterial;
     public Transform target;
     public Transform target_2;
+    public Transform target_3;
     public float tolerance = 1.0f;
     public float maxIterations = 1e5f;
     private float lambda;
@@ -53,9 +54,13 @@ public class FABRIK: MonoBehaviour
 
             countIterations++;
         }
-        else
+        else if(target != target_2 && target != target_3)
         {
             catchDrone();
+        }
+        else
+        {
+            retirada();
         }
 
         UpdateVisualLinks();
@@ -134,6 +139,11 @@ public class FABRIK: MonoBehaviour
         droneScript.StopMovement();
 
         target = target_2;
+    }
+
+    void retirada()
+    {
+        target = target_3;
     }
 
 }
