@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
@@ -58,10 +59,7 @@ public class FABRIK: MonoBehaviour
         {
             catchDrone();
         }
-        else
-        {
-            retirada();
-        }
+
 
         UpdateVisualLinks();
     }
@@ -141,9 +139,14 @@ public class FABRIK: MonoBehaviour
         target = target_2;
     }
 
-    void retirada()
+    public void retirada()
     {
         target = target_3;
+    }
+
+    public void dropDrone()
+    {
+        target.transform.SetParent(null);
     }
 
 }
