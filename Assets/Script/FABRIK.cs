@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ public class FABRIK: MonoBehaviour
     public Material lineMaterial;
     public Transform target;
     public Transform target_2;
+    public Transform target_3;
     public float tolerance = 1.0f;
     public float maxIterations = 1e5f;
     private float lambda;
@@ -53,10 +55,11 @@ public class FABRIK: MonoBehaviour
 
             countIterations++;
         }
-        else
+        else if(target != target_2 && target != target_3)
         {
             catchDrone();
         }
+
 
         UpdateVisualLinks();
     }
@@ -134,6 +137,16 @@ public class FABRIK: MonoBehaviour
         droneScript.StopMovement();
 
         target = target_2;
+    }
+
+    public void retirada()
+    {
+        target = target_3;
+    }
+
+    public void dropDrone()
+    {
+        target.transform.SetParent(null);
     }
 
 }
